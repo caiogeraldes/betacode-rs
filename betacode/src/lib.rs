@@ -294,6 +294,7 @@ pub mod validator {
         NotASCII(Vec<char>),
         InvalidChars(Vec<char>),
         InvalidDiacriticOrder(Vec<String>),
+        EmptyString,
     }
 
     impl fmt::Display for ValidationError {
@@ -303,6 +304,9 @@ pub mod validator {
                 ValidationError::InvalidChars(a) => write!(f, "Invalid characteres {:?}", a),
                 ValidationError::InvalidDiacriticOrder(a) => {
                     write!(f, "Invalid diacritic order: {:?}", a)
+                }
+                ValidationError::EmptyString => {
+                    write!(f, "Empty string!")
                 }
             }
         }
@@ -332,6 +336,7 @@ pub mod validator {
             'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
             'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '*',
             '#', '|', ')', '(', '/', '\\', '.', ';', ':', '1', '2', '3', ',', '\'', '+', '=', ' ',
+            '\n',
         ];
         match input.chars().all(|c| valid_chars.contains(&c)) {
             true => Ok(()),
@@ -431,7 +436,8 @@ pub mod validator {
         let input: String = input.into();
 
         if !input.is_ascii() {
-            let non_ascii_chars: Vec<char> = input.chars().filter(|c| !c.is_ascii()).collect();
+            let mut non_ascii_chars: Vec<char> = input.chars().filter(|c| !c.is_ascii()).collect();
+            non_ascii_chars.dedup();
             Err(ValidationError::NotASCII(non_ascii_chars))
         } else {
             Ok(())

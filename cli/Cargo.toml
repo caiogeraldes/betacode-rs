@@ -12,3 +12,4 @@ readme = "../README.md"
 
 [dependencies]
 betacode = {path = "../betacode"}
+clap = { version = "3.2.17", features = ["derive"] }
