@@ -214,11 +214,6 @@ pub mod converter {
     mod tests_converter {
         use super::*;
         #[test]
-        fn empty_string() {
-            let result = convert("".to_string());
-            assert_eq!(result, "".to_string());
-        }
-        #[test]
         fn capital_letters() {
             let result = find_upper("*a".to_string());
             assert_eq!(result, "A".to_string());
@@ -426,10 +421,14 @@ pub mod validator {
     pub fn validate<T: Into<String>>(input: T) -> Result<(), ValidationError> {
         let input: String = input.into();
 
-        check_ascii(&input)?;
-        diacritics_ordered(&input)?;
-        standard_characteres(input)?;
-        Ok(())
+        if input.is_empty() {
+            Err(ValidationError::EmptyString)
+        } else {
+            check_ascii(&input)?;
+            diacritics_ordered(&input)?;
+            standard_characteres(input)?;
+            Ok(())
+        }
     }
 
     fn check_ascii<T: Into<String>>(input: T) -> Result<(), ValidationError> {
