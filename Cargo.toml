@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "betacode",
+    "betacode-cli"
+]
