@@ -102,6 +102,6 @@ order in `ValidationError::InvalidDiacriticOrder`.
 The CLI is very straightforward:
 
 ```bash
-$ betacode "mh=nin a)/eide qea\\ *phlhi+a/dew *a)xilh=os"
+$ betaconvert "mh=nin a)/eide qea\\ *phlhi+a/dew *a)xilh=os"
 > μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος
 ```
