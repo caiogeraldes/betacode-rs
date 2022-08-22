@@ -1,9 +1,10 @@
 # betacode-rs
 
-A rust library for Betacode conversion.
+A rust library and CLI for Betacode conversion.
 
+## Library
 
-## Conversion
+### Conversion
 
 Example:
 
@@ -16,7 +17,7 @@ let result = betacode::converter::convert(input);
 assert_eq!(result, output);
 ```
 
-## Validation
+### Validation
 
 Validating a Betacode text consists in validating whether or not it follows the rules:
 
@@ -95,3 +96,12 @@ order in `ValidationError::InvalidDiacriticOrder`.
      }
  }
  ```
+
+## CLI
+
+The CLI is very straightforward:
+
+```bash
+$ betacode "mh=nin a)/eide qea\\ *phlhi+a/dew *a)xilh=os"
+> μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος
+```
