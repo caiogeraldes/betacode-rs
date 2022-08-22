@@ -94,7 +94,6 @@ fn main() -> Result<(), validator::ValidationError> {
                         );
                         std::process::exit(1)
                     }
-                    _ => Ok(()),
                 },
             },
         },

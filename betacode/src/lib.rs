@@ -179,7 +179,7 @@ pub mod converter {
     /// - Finds and replaces the final sigma (all notations);
     /// - Finds and replaces forced medial sigmas and lunate sigmas.
     pub fn sigma_handler<T: Into<String>>(input: T) -> String {
-        let re_final_sigma = Regex::new(r"σ[2 .,·;’‐—]|σ$").unwrap();
+        let re_final_sigma = Regex::new(r"σ[2 .,·;’‐—\n]|σ$").unwrap();
         let input: String = input.into();
 
         let output = re_final_sigma.replace_all(&input, "ς");
@@ -289,7 +289,6 @@ pub mod validator {
         NotASCII(Vec<char>),
         InvalidChars(Vec<char>),
         InvalidDiacriticOrder(Vec<String>),
-        EmptyString,
     }
 
     impl fmt::Display for ValidationError {
@@ -299,9 +298,6 @@ pub mod validator {
                 ValidationError::InvalidChars(a) => write!(f, "Invalid characteres {:?}", a),
                 ValidationError::InvalidDiacriticOrder(a) => {
                     write!(f, "Invalid diacritic order: {:?}", a)
-                }
-                ValidationError::EmptyString => {
-                    write!(f, "Empty string!")
                 }
             }
         }
@@ -421,14 +417,10 @@ pub mod validator {
     pub fn validate<T: Into<String>>(input: T) -> Result<(), ValidationError> {
         let input: String = input.into();
 
-        if input.is_empty() {
-            Err(ValidationError::EmptyString)
-        } else {
-            check_ascii(&input)?;
-            diacritics_ordered(&input)?;
-            standard_characteres(input)?;
-            Ok(())
-        }
+        check_ascii(&input)?;
+        diacritics_ordered(&input)?;
+        standard_characteres(input)?;
+        Ok(())
     }
 
     fn check_ascii<T: Into<String>>(input: T) -> Result<(), ValidationError> {
