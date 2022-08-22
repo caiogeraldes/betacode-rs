@@ -2,6 +2,11 @@
 name = "betacode-cli"
 version = "0.1.0"
 edition = "2021"
+authors = ["Caio Geraldes <caio.geraldes@usp.br"]
+description = "A rust library for Betacode conversion"
+license = "MIT"
+repository = "https://github.com/caiogeraldes/betacode-rs"
+readme = "../README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
