@@ -4,6 +4,19 @@ A rust library and CLI for Betacode conversion.
 
 ## Library
 
+### Adding as a dependency
+
+```bash
+$ cargo add betacode
+```
+
+Or add to `Cargo.toml`:
+
+```toml
+[dependencies]
+betacode = "1.0.1"
+```
+
 ### Conversion
 
 Example:
@@ -99,6 +112,18 @@ order in `ValidationError::InvalidDiacriticOrder`.
 
 
 ## CLI
+
+### Intalation
+
+Assuming you have `rust` installed in your system, clone this repository and run:
+
+```bash
+cargo install --path ./cli/
+```
+
+It should do the job.
+
+### Usage
 
 The basic usage of the CLI is very straightforward:
 
