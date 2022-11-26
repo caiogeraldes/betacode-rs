@@ -1,6 +1,6 @@
 [package]
 name = "betacode"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 authors = ["Caio Geraldes <caio.geraldes@usp.br"]
 description = "A rust library for Betacode conversion"
