@@ -100,7 +100,7 @@ pub mod converter {
     }
 
     /// Converts the betacode entry from ASCII (with mixed cases) to Greek Unicode.
-    pub fn ascii_to_unicode<T: Into<String>>(input: T) -> String {
+    fn ascii_to_unicode<T: Into<String>>(input: T) -> String {
         let mut output: String = input.into();
         output = output
             .replace(')', "\u{0313}")
@@ -179,10 +179,13 @@ pub mod converter {
     /// - Finds and replaces the final sigma (all notations);
     /// - Finds and replaces forced medial sigmas and lunate sigmas.
     pub fn sigma_handler<T: Into<String>>(input: T) -> String {
-        let re_final_sigma = Regex::new(r"σ[2 .,·;’‐—\n]|σ$").unwrap();
+        let re_final_sigma = Regex::new(r"σ([2 .,·;’‐—\n])").unwrap();
         let input: String = input.into();
 
-        let output = re_final_sigma.replace_all(&input, "ς");
+        let output = re_final_sigma.replace_all(&input, r"ς$1");
+
+        let re_final_sigma = Regex::new(r"σ$").unwrap();
+        let output = re_final_sigma.replace_all(&output, r"ς");
 
         output
             .replace("s1", "\u{03c2}")
@@ -246,23 +249,32 @@ pub mod converter {
         #[test]
         fn test_convert() {
             let string = String::from("a)");
-            let result = ascii_to_unicode(string);
-            assert_eq!(result, "ἀ".to_string());
+            let result = convert(string);
+            assert_eq!(result, normalize_unicode("ἀ").to_string());
             let string = String::from("a)/");
-            let result = ascii_to_unicode(string);
-            assert_eq!(result, "ἄ".to_string());
+            let result = convert(string);
+            assert_eq!(result, normalize_unicode("ἄ").to_string());
             let string = String::from("a)/|");
-            let result = ascii_to_unicode(string);
-            assert_eq!(result, "ᾄ".to_string());
+            let result = convert(string);
+            assert_eq!(result, normalize_unicode("ᾄ").to_string());
             let string = String::from("a)=|");
-            let result = ascii_to_unicode(string);
-            assert_eq!(result, "ᾆ".to_string());
+            let result = convert(string);
+            assert_eq!(result, normalize_unicode("ᾆ").to_string());
             let string = String::from("abcdefghiklmnopqrstuvwxyz");
-            let result = ascii_to_unicode(string);
+            let result = convert(string);
             assert_eq!(result, "αβξδεφγηικλμνοπθρστυϝωχψζ".to_string());
             let string = String::from("ABCDEFGHIKLMNOPQRSTUVWXYZ");
-            let result = ascii_to_unicode(string);
-            assert_eq!(result, "ΑΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ".to_string());
+            let result = convert(string);
+            assert_eq!(
+                result,
+                normalize_unicode("αβξδεφγηικλμνοπθρστυϝωχψζ").to_string()
+            );
+            let string = String::from("*A*B*C*D*E*F*G*H*I*K*L*M*N*O*P*Q*R*S*T*U*V*W*X*Y*Z");
+            let result = convert(string);
+            assert_eq!(
+                result,
+                normalize_unicode("ΑΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ").to_string()
+            );
         }
         #[test]
         fn unicode_normalized() {
