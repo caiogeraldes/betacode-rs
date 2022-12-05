@@ -18,10 +18,6 @@ pub mod converter {
     use regex::Regex;
     use unicode_normalization::UnicodeNormalization;
 
-    fn lowercase<T: Into<String>>(input: T) -> String {
-        input.into().to_lowercase()
-    }
-
     fn normalize_unicode<T: Into<String>>(input: T) -> String {
         let input: &str = &input.into();
         input.nfkc().collect::<String>()
@@ -203,8 +199,7 @@ pub mod converter {
     /// - applies specific conversion rules to sigmas.
     ///
     pub fn convert<T: Into<String>>(input: T) -> String {
-        let mut output = input.into();
-        output = lowercase(output);
+        let mut output = input.into().to_lowercase();
         output = find_upper(output);
         output = reorder_diacritics(output);
         output = ascii_to_unicode(output);
