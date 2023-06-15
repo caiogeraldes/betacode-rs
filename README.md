@@ -1,5 +1,7 @@
 # betacode-rs
 
+[![Production](https://github.com/caiogeraldes/betacode-rs/actions/workflows/rust-production.yml/badge.svg)](https://github.com/caiogeraldes/betacode-rs/actions/workflows/rust-production.yml)
+
 A rust library and CLI for Betacode conversion.
 
 ## Library
