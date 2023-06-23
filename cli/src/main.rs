@@ -128,10 +128,6 @@ fn main() -> Result<(), validator::ValidationError> {
                         );
                         std::process::exit(1)
                     }
-                    validator::ValidationError::MixedCaseNotation => {
-                        eprintln!("Text passed contains both * and upper case ASCII for Greek Upper notation.\n{e}");
-                        std::process::exit(1)
-                    }
                     _ => Ok(()),
                 },
             },

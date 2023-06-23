@@ -172,7 +172,9 @@ pub fn convert<T: Into<String>>(input: T) -> String {
                 output = output.to_lowercase();
             }
         }
-        Err(_) => panic!("Mixed case notation"),
+        Err(_) => {
+            output = find_upper(output);
+        },
     }
     // Checks for unordered diacritics
     if RE_UNORDERED_DIACRITICS.is_match(&output) {
