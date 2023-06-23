@@ -1,5 +1,36 @@
+use lazy_static::lazy_static;
 use regex::Regex;
+use std::collections::HashMap;
 use unicode_normalization::UnicodeNormalization;
+
+const BETA_MID_VALUES: [&str; 67] = [
+    ")", "(", "/", "=", "\\", "+", "|", "A", "a", "B", "b", "C", "c", "D", "d", "E", "e", "F", "f",
+    "G", "g", "H", "h", "I", "i", "K", "k", "L", "l", "M", "m", "N", "n", "O", "o", "P", "p", "Q",
+    "q", "R", "r", "S", "s", "T", "t", "U", "u", "V", "v", "W", "w", "X", "x", "Y", "y", "Z", "z",
+    ";", ":", "*#1", "#1", "*#2", "#2", "*#3", "#3", "*#5", "#5",
+];
+
+const UNI_VALUES: [&str; 67] = [
+    "\u{0313}", "\u{0314}", "\u{0301}", "\u{0342}", "\u{0300}", "\u{0308}", "\u{0345}", "\u{0391}",
+    "\u{03b1}", "\u{0392}", "\u{03b2}", "\u{039e}", "\u{03be}", "\u{0394}", "\u{03b4}", "\u{0395}",
+    "\u{03b5}", "\u{03a6}", "\u{03c6}", "\u{0393}", "\u{03b3}", "\u{0397}", "\u{03b7}", "\u{0399}",
+    "\u{03b9}", "\u{039a}", "\u{03ba}", "\u{039b}", "\u{03bb}", "\u{039c}", "\u{03bc}", "\u{039d}",
+    "\u{03bd}", "\u{039f}", "\u{03bf}", "\u{03a0}", "\u{03c0}", "\u{0398}", "\u{03b8}", "\u{03a1}",
+    "\u{03c1}", "\u{03a3}", "\u{03c3}", "\u{03a4}", "\u{03c4}", "\u{03a5}", "\u{03c5}", "\u{03dc}",
+    "\u{03dd}", "\u{03a9}", "\u{03c9}", "\u{03a7}", "\u{03c7}", "\u{03a8}", "\u{03c8}", "\u{0396}",
+    "\u{03b6}", "\u{00b3}", "\u{00b7}", "\u{03de}", "\u{03df}", "\u{03da}", "\u{03db}", "\u{03d8}",
+    "\u{03d9}", "\u{03e0}", "\u{03e1}",
+];
+
+lazy_static! {
+    static ref BETA_TO_UNI: HashMap<&'static str, &'static str> = {
+        let mut m = HashMap::new();
+        for (b, u) in BETA_MID_VALUES.iter().zip(UNI_VALUES.iter()) {
+            m.insert(*b, *u);
+        }
+        m
+    };
+}
 
 fn normalize_unicode<T: Into<String>>(input: T) -> String {
     let input: &str = &input.into();
@@ -81,74 +112,9 @@ pub fn reorder_diacritics<T: Into<String>>(input: T) -> String {
 /// Converts the betacode entry from ASCII (with mixed cases) to Greek Unicode.
 fn ascii_to_unicode<T: Into<String>>(input: T) -> String {
     let mut output: String = input.into();
-    output = output
-        .replace(')', "\u{0313}")
-        .replace('(', "\u{0314}")
-        .replace('/', "\u{0301}")
-        .replace('=', "\u{0342}")
-        .replace('\\', "\u{0300}")
-        .replace('+', "\u{0308}")
-        .replace('|', "\u{0345}")
-        .replace('A', "\u{0391}")
-        .replace('a', "\u{03b1}")
-        .replace('B', "\u{0392}")
-        .replace('b', "\u{03b2}")
-        .replace('C', "\u{039e}")
-        .replace('c', "\u{03be}")
-        .replace('D', "\u{0394}")
-        .replace('d', "\u{03b4}")
-        .replace('E', "\u{0395}")
-        .replace('e', "\u{03b5}")
-        .replace('F', "\u{03a6}")
-        .replace('f', "\u{03c6}")
-        .replace('G', "\u{0393}")
-        .replace('g', "\u{03b3}")
-        .replace('H', "\u{0397}")
-        .replace('h', "\u{03b7}")
-        .replace('I', "\u{0399}")
-        .replace('i', "\u{03b9}")
-        .replace('K', "\u{039a}")
-        .replace('k', "\u{03ba}")
-        .replace('L', "\u{039b}")
-        .replace('l', "\u{03bb}")
-        .replace('M', "\u{039c}")
-        .replace('m', "\u{03bc}")
-        .replace('N', "\u{039d}")
-        .replace('n', "\u{03bd}")
-        .replace('O', "\u{039f}")
-        .replace('o', "\u{03bf}")
-        .replace('P', "\u{03a0}")
-        .replace('p', "\u{03c0}")
-        .replace('Q', "\u{0398}")
-        .replace('q', "\u{03b8}")
-        .replace('R', "\u{03a1}")
-        .replace('r', "\u{03c1}")
-        .replace('S', "\u{03a3}")
-        .replace('s', "\u{03c3}")
-        .replace('T', "\u{03a4}")
-        .replace('t', "\u{03c4}")
-        .replace('U', "\u{03a5}")
-        .replace('u', "\u{03c5}")
-        .replace('V', "\u{03dc}")
-        .replace('v', "\u{03dd}")
-        .replace('W', "\u{03a9}")
-        .replace('w', "\u{03c9}")
-        .replace('X', "\u{03a7}")
-        .replace('x', "\u{03c7}")
-        .replace('Y', "\u{03a8}")
-        .replace('y', "\u{03c8}")
-        .replace('Z', "\u{0396}")
-        .replace('z', "\u{03b6}")
-        .replace("*#1", "\u{03de}") // Koppa
-        .replace("#1", "\u{03df}")
-        .replace("*#2", "\u{03da}") // Stigma
-        .replace("#2", "\u{03db}")
-        .replace("*#3", "\u{03d8}") // Archaic Koppa
-        .replace("#3", "\u{03d9}")
-        .replace("*#5", "\u{03e0}") // Sampi
-        .replace("#5", "\u{03e1}")
-        .replace(';', "\u{00b3}") // Greek question mark
-        .replace(':', "\u{00b7}"); // Middle Dot
+    for c in BETA_MID_VALUES.iter() {
+        output = output.replace(*c, BETA_TO_UNI.get(c).unwrap());
+    }
 
     output
 }

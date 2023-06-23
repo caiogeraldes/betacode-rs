@@ -45,11 +45,10 @@ fn diacritics_ordered<T: Into<String>>(input: T) -> Result<(), ValidationError> 
 fn standard_characteres<T: Into<String>>(input: T) -> Result<(), ValidationError> {
     let input: String = input.into();
     let valid_chars = vec![
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
-        'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '*',
-        '#', '|', ')', '(', '/', '\\', '.', ';', ':', '1', '2', '3', ',', '\'', '+', '=', ' ',
-        '\n',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+        'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k', 'l',
+        'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '*', '#', '|', ')',
+        '(', '/', '\\', '.', ';', ':', '1', '2', '3', ',', '\'', '+', '=', ' ', '\n',
     ];
     match input.chars().all(|c| valid_chars.contains(&c)) {
         true => Ok(()),
