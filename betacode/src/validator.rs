@@ -11,6 +11,7 @@ pub enum ValidationError {
     NotASCII(Vec<char>),
     InvalidChars(Vec<char>),
     InvalidDiacriticOrder(Vec<String>),
+    MixedCaseNotation,
 }
 
 impl fmt::Display for ValidationError {
@@ -20,6 +21,9 @@ impl fmt::Display for ValidationError {
             ValidationError::InvalidChars(a) => write!(f, "Invalid characteres {:?}", a),
             ValidationError::InvalidDiacriticOrder(a) => {
                 write!(f, "Invalid diacritic order: {:?}", a)
+            }
+            ValidationError::MixedCaseNotation => {
+                write!(f, "Mixed case notation: * and uppercase ASCII characteres")
             }
         }
     }
@@ -58,6 +62,20 @@ fn standard_characteres<T: Into<String>>(input: T) -> Result<(), ValidationError
             invalid_chars.dedup();
             Err(ValidationError::InvalidChars(invalid_chars))
         }
+    }
+}
+
+pub(crate) fn mixed_case<T: Into<String>>(input: T) -> Result<(), ValidationError> {
+    let input: String = input.into();
+    match input.find(char::is_uppercase).is_some() {
+        true => match input.find(char::is_lowercase).is_some() {
+            true => match input.contains('*') {
+                true => Err(ValidationError::MixedCaseNotation),
+                false => Ok(()),
+            },
+            false => Ok(()),
+        },
+        false => Ok(()),
     }
 }
 
@@ -140,7 +158,8 @@ pub fn validate<T: Into<String>>(input: T) -> Result<(), ValidationError> {
 
     check_ascii(&input)?;
     diacritics_ordered(&input)?;
-    standard_characteres(input)?;
+    standard_characteres(&input)?;
+    mixed_case(input)?;
     Ok(())
 }
 

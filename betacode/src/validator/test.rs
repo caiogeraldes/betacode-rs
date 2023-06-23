@@ -18,4 +18,7 @@ fn invalid_betacode() {
             }
         }
     }
+    let input = String::from("*a A");
+    let result = validate(input);
+    assert!(result.is_err());
 }

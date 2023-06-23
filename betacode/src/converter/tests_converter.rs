@@ -58,11 +58,40 @@ fn test_convert() {
         result,
         normalize_unicode("ΑΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ").to_string()
     );
+    let string = String::from("aBCDEFGHIKLMNOPQRSTUVWXYZ");
+    let result = convert(string);
+    assert_eq!(
+        result,
+        normalize_unicode("αΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ").to_string()
+    );
+}
+#[test]
+#[should_panic]
+fn panics_mixed_case() {
+    convert("A *a");
 }
 #[test]
 fn unicode_normalized() {
     let input = String::from("mh=nin a)/eide qea\\ *phlhi+a/dew *a)xilh=os");
     let output = normalize_unicode("μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος");
+    let result = convert(input);
+    assert_eq!(result, output);
+}
+#[test]
+fn unordered_diacritics() {
+    let input = String::from("mh=nin a/)eide qea\\ *phlhi+a/dew *a)xilh=os");
+    let output = String::from("μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος");
+    let result = convert(input);
+    assert_eq!(result, output);
+}
+#[test]
+fn special_sigma() {
+    let input = String::from("mh=nin a/)eide qea\\ *phlhi+a/dew *a)xilh=os3");
+    let output = String::from("μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆοϲ");
+    let result = convert(input);
+    assert_eq!(result, output);
+    let input = String::from("s3 *s3 s1α");
+    let output = String::from("ϲ Ϲ \u{03c2}α");
     let result = convert(input);
     assert_eq!(result, output);
 }

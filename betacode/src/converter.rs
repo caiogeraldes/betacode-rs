@@ -1,3 +1,4 @@
+use crate::validator::mixed_case;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
@@ -31,6 +32,17 @@ lazy_static! {
         m
     };
 }
+lazy_static! {
+    static ref RE_UNORDERED_DIACRITICS: Regex = Regex::new(r"(\|*)([\\/=])(\|*)([()\+])").unwrap();
+}
+lazy_static! {
+    static ref RE_FINAL_SIGMA_CHAR: Regex = Regex::new(r"σ([2 .,·;’‐—\n])").unwrap();
+}
+lazy_static! {
+    static ref RE_FINAL_SIGMA_END: Regex = Regex::new(r"σ$").unwrap();
+}
+
+const SPECIAL_SIGMAS: [&str; 3] = ["σ1", "σ3", "Σ3"];
 
 fn normalize_unicode<T: Into<String>>(input: T) -> String {
     let input: &str = &input.into();
@@ -103,57 +115,85 @@ pub fn find_upper<T: Into<String>>(input: T) -> String {
 /// assert_eq!(result, "A+/".to_string());
 /// ```
 pub fn reorder_diacritics<T: Into<String>>(input: T) -> String {
-    let re = Regex::new(r"(\|*)([\\/=])(\|*)([()\+])").unwrap();
     let input: String = input.into();
-    let output = re.replace_all(&input, "$4$2$1$3".to_string());
+    let output = RE_UNORDERED_DIACRITICS.replace_all(&input, "$4$2$1$3".to_string());
     output.into()
 }
 
 /// Converts the betacode entry from ASCII (with mixed cases) to Greek Unicode.
 fn ascii_to_unicode<T: Into<String>>(input: T) -> String {
     let mut output: String = input.into();
-    for c in BETA_MID_VALUES.iter() {
+    BETA_MID_VALUES.iter().for_each(|c| {
         output = output.replace(*c, BETA_TO_UNI.get(c).unwrap());
-    }
+    });
 
     output
 }
 
-/// Handles the specific rules for different classes of sigma.
+/// Handles the specific rules for final sigmas.
 ///
-/// - Finds and replaces the final sigma (all notations);
-/// - Finds and replaces forced medial sigmas and lunate sigmas.
 pub fn sigma_handler<T: Into<String>>(input: T) -> String {
-    let re_final_sigma = Regex::new(r"σ([2 .,·;’‐—\n])").unwrap();
     let input: String = input.into();
 
-    let output = re_final_sigma.replace_all(&input, r"ς$1");
+    let output = RE_FINAL_SIGMA_CHAR.replace_all(&input, r"ς$1");
+    RE_FINAL_SIGMA_END.replace_all(&output, r"ς").into()
+}
 
-    let re_final_sigma = Regex::new(r"σ$").unwrap();
-    let output = re_final_sigma.replace_all(&output, r"ς");
-
-    output
-        .replace("s1", "\u{03c2}")
-        .replace("s3", "\u{03f2}")
-        .replace("S3", "\u{03f9}")
+/// Finds and replaces forced medial sigmas and lunate sigmas.
+///
+pub fn special_sigma<T: Into<String>>(input: T) -> String {
+    input
+        .into()
+        .replace("σ1", "\u{03c2}")
+        .replace("σ3", "\u{03f2}")
+        .replace("Σ3", "\u{03f9}")
 }
 
 /// Applies the conversion pipeline.
 ///
 /// The conversion pipeline is:
-/// - lower the case of the whole entry;
+/// - lower the case of the whole entry if needed;
+///     - text in all upper case will be lowercased
 /// - substitutes the `*+letter` sequences to upper case letter;
 /// - normalizes the diacritics ordering;
 /// - converts from ascii betacode to unicode Greek;
 /// - applies specific conversion rules to sigmas.
 ///
 pub fn convert<T: Into<String>>(input: T) -> String {
-    let mut output = input.into().to_lowercase();
-    output = find_upper(output);
-    output = reorder_diacritics(output);
+    let mut output = input.into();
+
+    // Handles valid mixed case
+    match mixed_case(&output) {
+        Ok(_) => {
+            if output.contains('*') {
+                output = output.to_lowercase();
+                output = find_upper(output);
+            } else if output.find(char::is_lowercase).is_none() {
+                output = output.to_lowercase();
+            }
+        }
+        Err(_) => panic!("Mixed case notation"),
+    }
+    // Checks for unordered diacritics
+    if RE_UNORDERED_DIACRITICS.is_match(&output) {
+        output = reorder_diacritics(output);
+    }
+
+    // Main conversion algorithm
     output = ascii_to_unicode(output);
-    output = sigma_handler(output);
+
+    // Handles final sigma rules
+    if RE_FINAL_SIGMA_END.is_match(&output) || RE_FINAL_SIGMA_CHAR.is_match(&output) {
+        output = sigma_handler(output);
+    }
+
+    // Normalizes output
     output = normalize_unicode(output);
+
+    // Handles special sigma classes
+    if SPECIAL_SIGMAS.iter().any(|c| output.contains(c)) {
+        output = special_sigma(output);
+    }
 
     output
 }
