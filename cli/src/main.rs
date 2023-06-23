@@ -1,3 +1,4 @@
+use pretty_env_logger;
 use betacode::{converter, validator};
 use clap::Parser;
 use std::fs;
@@ -26,6 +27,10 @@ fn convert_line(input: String) -> Result<String, validator::ValidationError> {
         Ok(()) => Ok(converter::convert(input)),
         Err(e) => match e {
             validator::ValidationError::InvalidDiacriticOrder(_) => Ok(converter::convert(input)),
+            validator::ValidationError::MixedCaseNotation => {
+                log::warn!("Mixed case notation used, may contain errors.");
+                Ok(converter::convert(input))
+            }
             _ => Err(e),
         },
     }
@@ -44,6 +49,7 @@ fn read_file(input: PathBuf) -> Result<String, std::io::Error> {
 }
 
 fn main() -> Result<(), validator::ValidationError> {
+    pretty_env_logger::init();
     let args = Args::parse();
 
     let input_str: Option<String> = match args.file {

@@ -66,10 +66,7 @@ fn test_convert() {
     );
     let string = String::from("*a A");
     let result = convert(string);
-    assert_eq!(
-        result,
-        normalize_unicode("Α Α").to_string()
-    );
+    assert_eq!(result, normalize_unicode("Α Α").to_string());
 }
 #[test]
 fn unicode_normalized() {

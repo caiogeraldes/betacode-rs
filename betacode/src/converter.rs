@@ -1,5 +1,6 @@
 use crate::validator::mixed_case;
 use lazy_static::lazy_static;
+use log::warn;
 use regex::Regex;
 use std::collections::HashMap;
 use unicode_normalization::UnicodeNormalization;
@@ -173,8 +174,9 @@ pub fn convert<T: Into<String>>(input: T) -> String {
             }
         }
         Err(_) => {
+            warn!("Mixed case notation used, may contain errors.");
             output = find_upper(output);
-        },
+        }
     }
     // Checks for unordered diacritics
     if RE_UNORDERED_DIACRITICS.is_match(&output) {
