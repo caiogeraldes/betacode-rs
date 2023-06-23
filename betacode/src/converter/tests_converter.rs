@@ -64,11 +64,9 @@ fn test_convert() {
         result,
         normalize_unicode("αΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ").to_string()
     );
-}
-#[test]
-#[should_panic]
-fn panics_mixed_case() {
-    convert("A *a");
+    let string = String::from("*a A");
+    let result = convert(string);
+    assert_eq!(result, normalize_unicode("Α Α").to_string());
 }
 #[test]
 fn unicode_normalized() {

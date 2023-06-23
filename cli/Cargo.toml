@@ -13,3 +13,5 @@ readme = "README.md"
 [dependencies]
 betacode = { path = "../betacode", version = ">=1.1.0" }
 clap = { version = "3.2.17", features = ["derive"] }
+log = "0.4.19"
+pretty_env_logger = "0.5.0"
