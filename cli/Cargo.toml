@@ -1,6 +1,6 @@
 [package]
 name = "betaconvert"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = ["Caio Geraldes <caio.geraldes@usp.br"]
 description = "A rust CLI for Betacode conversion"
@@ -11,5 +11,5 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-betacode = { path = "../betacode", version = ">=1.0.2" }
+betacode = { path = "../betacode", version = ">=1.1.0" }
 clap = { version = "3.2.17", features = ["derive"] }
