@@ -1,4 +1,3 @@
-use pretty_env_logger;
 use betacode::{converter, validator};
 use clap::Parser;
 use std::fs;
