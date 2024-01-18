@@ -34,6 +34,15 @@ lazy_static! {
     };
 }
 lazy_static! {
+    static ref UNI_TO_BETA: HashMap<&'static str, &'static str> = {
+        let mut m = HashMap::new();
+        for (b, u) in UNI_VALUES.iter().zip(BETA_MID_VALUES.iter()) {
+            m.insert(*b, *u);
+        }
+        m
+    };
+}
+lazy_static! {
     static ref RE_UNORDERED_DIACRITICS: Regex = Regex::new(r"(\|*)([\\/=])(\|*)([()\+])").unwrap();
 }
 lazy_static! {
@@ -45,9 +54,13 @@ lazy_static! {
 
 const SPECIAL_SIGMAS: [&str; 3] = ["σ1", "σ3", "Σ3"];
 
-fn normalize_unicode<T: Into<String>>(input: T) -> String {
+fn compose_unicode<T: Into<String>>(input: T) -> String {
     let input: &str = &input.into();
     input.nfkc().collect::<String>()
+}
+fn decompose_unicode<T: Into<String>>(input: T) -> String {
+    let input: &str = &input.into();
+    input.nfkd().collect::<String>()
 }
 
 /// Locates upper case characters marked by "*" and replaces them
@@ -130,6 +143,15 @@ fn ascii_to_unicode<T: Into<String>>(input: T) -> String {
 
     output
 }
+/// Converts the betacode entry from Greek Unicode to ASCII (with mixed cases).
+fn unicode_to_ascii<T: Into<String>>(input: T) -> String {
+    let mut output: String = input.into();
+    UNI_VALUES.iter().for_each(|c| {
+        output = output.replace(*c, UNI_TO_BETA.get(c).unwrap());
+    });
+
+    output
+}
 
 /// Handles the specific rules for final sigmas.
 ///
@@ -158,6 +180,7 @@ pub fn special_sigma<T: Into<String>>(input: T) -> String {
 /// - substitutes the `*+letter` sequences to upper case letter;
 /// - normalizes the diacritics ordering;
 /// - converts from ascii betacode to unicode Greek;
+/// - normalize to composed unicode;
 /// - applies specific conversion rules to sigmas.
 ///
 pub fn convert<T: Into<String>>(input: T) -> String {
@@ -192,7 +215,7 @@ pub fn convert<T: Into<String>>(input: T) -> String {
     }
 
     // Normalizes output
-    output = normalize_unicode(output);
+    output = compose_unicode(output);
 
     // Handles special sigma classes
     if SPECIAL_SIGMAS.iter().any(|c| output.contains(c)) {
@@ -200,6 +223,25 @@ pub fn convert<T: Into<String>>(input: T) -> String {
     }
 
     output
+}
+/// Applies the reversion pipeline.
+///
+/// The reversion pipeline is:
+/// - normalize unicode to decomposed structure
+/// - converts from ascii betacode to unicode Greek;
+/// - applies specific conversion rules to sigmas.
+/// - substitutes uppercase letters to the `*+letter` notation;
+/// - lowercases the output.
+///
+pub fn revert<T: Into<String>>(input: T) -> String {
+    let mut output = input.into();
+    output = decompose_unicode(&output);
+    output = unicode_to_ascii(output);
+    output = output.replace("ς", "s");
+    let re = Regex::new(r"([A-Z])").unwrap();
+    output = re.replace_all(&output, r"*$1").to_string();
+    output = output.to_lowercase();
+    output.into()
 }
 #[cfg(test)]
 mod tests_converter;

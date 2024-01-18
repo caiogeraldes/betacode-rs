@@ -93,3 +93,10 @@ fn special_sigma() {
     let result = convert(input);
     assert_eq!(result, output);
 }
+#[test]
+fn revert_ok() {
+    let input = String::from("μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος");
+    let output = String::from("mh=nin a)/eide qea\\ *phlhi+a/dew *a)xilh=os");
+    let result = revert(input);
+    assert_eq!(result, output);
+}

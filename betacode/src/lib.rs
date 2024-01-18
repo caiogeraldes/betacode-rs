@@ -13,7 +13,7 @@
 //! ```
 //!
 
-/// Module containing functions necessary for the betacode conversion.
+/// Module containing functions necessary for converting from and into betacode.
 pub mod converter;
 
 /// Validation module for Betacode texts
