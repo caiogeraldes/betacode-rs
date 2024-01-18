@@ -81,8 +81,20 @@ fn main() -> Result<(), validator::ValidationError> {
                 std::process::exit(1)
             }
             Some(input_str) => {
-                println!("{}", revert_line(input_str));
-                Ok(())
+                let string = revert_line(input_str);
+                match args.output {
+                    None => {
+                        println!("{}", revert_line(string));
+                        Ok(())
+                    }
+                    Some(path) => match fs::write(PathBuf::from(path), string) {
+                        Ok(_) => Ok(()),
+                        Err(e) => {
+                            eprintln!("{e}");
+                            std::process::exit(1)
+                        }
+                    },
+                }
             }
         },
 
