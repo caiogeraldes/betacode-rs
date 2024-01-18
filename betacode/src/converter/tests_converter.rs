@@ -33,16 +33,16 @@ fn reorder_diacritic() {
 fn test_convert() {
     let string = String::from("a)");
     let result = convert(string);
-    assert_eq!(result, normalize_unicode("ἀ").to_string());
+    assert_eq!(result, compose_unicode("ἀ").to_string());
     let string = String::from("a)/");
     let result = convert(string);
-    assert_eq!(result, normalize_unicode("ἄ").to_string());
+    assert_eq!(result, compose_unicode("ἄ").to_string());
     let string = String::from("a)/|");
     let result = convert(string);
-    assert_eq!(result, normalize_unicode("ᾄ").to_string());
+    assert_eq!(result, compose_unicode("ᾄ").to_string());
     let string = String::from("a)=|");
     let result = convert(string);
-    assert_eq!(result, normalize_unicode("ᾆ").to_string());
+    assert_eq!(result, compose_unicode("ᾆ").to_string());
     let string = String::from("abcdefghiklmnopqrstuvwxyz");
     let result = convert(string);
     assert_eq!(result, "αβξδεφγηικλμνοπθρστυϝωχψζ".to_string());
@@ -50,28 +50,28 @@ fn test_convert() {
     let result = convert(string);
     assert_eq!(
         result,
-        normalize_unicode("αβξδεφγηικλμνοπθρστυϝωχψζ").to_string()
+        compose_unicode("αβξδεφγηικλμνοπθρστυϝωχψζ").to_string()
     );
     let string = String::from("*A*B*C*D*E*F*G*H*I*K*L*M*N*O*P*Q*R*S*T*U*V*W*X*Y*Z");
     let result = convert(string);
     assert_eq!(
         result,
-        normalize_unicode("ΑΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ").to_string()
+        compose_unicode("ΑΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ").to_string()
     );
     let string = String::from("aBCDEFGHIKLMNOPQRSTUVWXYZ");
     let result = convert(string);
     assert_eq!(
         result,
-        normalize_unicode("αΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ").to_string()
+        compose_unicode("αΒΞΔΕΦΓΗΙΚΛΜΝΟΠΘΡΣΤΥϜΩΧΨΖ").to_string()
     );
     let string = String::from("*a A");
     let result = convert(string);
-    assert_eq!(result, normalize_unicode("Α Α").to_string());
+    assert_eq!(result, compose_unicode("Α Α").to_string());
 }
 #[test]
 fn unicode_normalized() {
     let input = String::from("mh=nin a)/eide qea\\ *phlhi+a/dew *a)xilh=os");
-    let output = normalize_unicode("μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος");
+    let output = compose_unicode("μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος");
     let result = convert(input);
     assert_eq!(result, output);
 }
