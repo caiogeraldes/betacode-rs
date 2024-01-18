@@ -19,6 +19,9 @@ pub struct Args {
     /// Output file for conversion (default is stdout)
     #[clap(short, long, action)]
     pub output: Option<String>,
+
+    #[clap(short, long, action)]
+    pub inverse: bool,
 }
 
 fn convert_line(input: String) -> Result<String, validator::ValidationError> {
@@ -33,6 +36,9 @@ fn convert_line(input: String) -> Result<String, validator::ValidationError> {
             _ => Err(e),
         },
     }
+}
+fn revert_line(input: String) -> String {
+    converter::revert(input)
 }
 
 fn convert_line_strict(input: String) -> Result<String, validator::ValidationError> {
@@ -68,72 +74,85 @@ fn main() -> Result<(), validator::ValidationError> {
         false => args.text,
     };
 
-    match args.strict {
+    match args.inverse {
         true => match input_str {
             None => {
                 eprintln! {"Empty string"};
                 std::process::exit(1)
             }
-            Some(input_str) => match convert_line_strict(input_str) {
-                Ok(string) => {
-                    println!("{string}");
-                    Ok(())
-                }
-                Err(e) => match e {
-                    validator::ValidationError::NotASCII(_) => {
-                        eprintln!("Text passed is not in ASCII.\n{e}");
-                        std::process::exit(1)
-                    }
-                    validator::ValidationError::InvalidChars(_) => {
-                        eprintln!(
-                            "Text passed violates ASCII Betacode standards as applied here.\n{e}"
-                        );
-                        std::process::exit(1)
-                    }
-                    validator::ValidationError::InvalidDiacriticOrder(_) => {
-                        eprintln!(
-                            "Text passed violates ASCII Betacode standards as applied here.\n{e}"
-                        );
-                        std::process::exit(1)
-                    }
-                    validator::ValidationError::MixedCaseNotation => {
-                        eprintln!("Text passed contains both * and upper case ASCII for Greek Upper notation.\n{e}");
-                        std::process::exit(1)
-                    }
-                },
-            },
-        },
-        false => match input_str {
-            None => {
-                eprintln! {"Empty string"};
-                std::process::exit(1)
+            Some(input_str) => {
+                println!("{}", revert_line(input_str));
+                Ok(())
             }
-            Some(input_str) => match convert_line(input_str) {
-                Ok(string) => match args.output {
-                    None => {
+        },
+
+        false => match args.strict {
+            true => match input_str {
+                None => {
+                    eprintln! {"Empty string"};
+                    std::process::exit(1)
+                }
+                Some(input_str) => match convert_line_strict(input_str) {
+                    Ok(string) => {
                         println!("{string}");
                         Ok(())
                     }
-                    Some(path) => match fs::write(PathBuf::from(path), string) {
-                        Ok(_) => Ok(()),
-                        Err(e) => {
-                            eprintln!("{e}");
+                    Err(e) => match e {
+                        validator::ValidationError::NotASCII(_) => {
+                            eprintln!("Text passed is not in ASCII.\n{e}");
+                            std::process::exit(1)
+                        }
+                        validator::ValidationError::InvalidChars(_) => {
+                            eprintln!(
+                            "Text passed violates ASCII Betacode standards as applied here.\n{e}"
+                        );
+                            std::process::exit(1)
+                        }
+                        validator::ValidationError::InvalidDiacriticOrder(_) => {
+                            eprintln!(
+                            "Text passed violates ASCII Betacode standards as applied here.\n{e}"
+                        );
+                            std::process::exit(1)
+                        }
+                        validator::ValidationError::MixedCaseNotation => {
+                            eprintln!("Text passed contains both * and upper case ASCII for Greek Upper notation.\n{e}");
                             std::process::exit(1)
                         }
                     },
                 },
-                Err(e) => match e {
-                    validator::ValidationError::NotASCII(_) => {
-                        eprintln!("Text passed is not in ASCII.\n{e}");
-                        std::process::exit(1)
-                    }
-                    validator::ValidationError::InvalidChars(_) => {
-                        eprintln!(
+            },
+            false => match input_str {
+                None => {
+                    eprintln! {"Empty string"};
+                    std::process::exit(1)
+                }
+                Some(input_str) => match convert_line(input_str) {
+                    Ok(string) => match args.output {
+                        None => {
+                            println!("{string}");
+                            Ok(())
+                        }
+                        Some(path) => match fs::write(PathBuf::from(path), string) {
+                            Ok(_) => Ok(()),
+                            Err(e) => {
+                                eprintln!("{e}");
+                                std::process::exit(1)
+                            }
+                        },
+                    },
+                    Err(e) => match e {
+                        validator::ValidationError::NotASCII(_) => {
+                            eprintln!("Text passed is not in ASCII.\n{e}");
+                            std::process::exit(1)
+                        }
+                        validator::ValidationError::InvalidChars(_) => {
+                            eprintln!(
                             "Text passed violates ASCII Betacode standards as applied here.\n{e}"
                         );
-                        std::process::exit(1)
-                    }
-                    _ => Ok(()),
+                            std::process::exit(1)
+                        }
+                        _ => Ok(()),
+                    },
                 },
             },
         },
