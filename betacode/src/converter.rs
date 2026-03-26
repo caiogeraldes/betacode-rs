@@ -90,6 +90,13 @@ pub fn find_upper<T: Into<String>>(input: T) -> String {
     for (i, character) in ascii_enum.iter().enumerate() {
         if character == &'*' && ascii_chars[i + 1].is_alphabetic() {
             ascii_chars[i + 1] = ascii_chars[i + 1].to_ascii_uppercase();
+        } else if character == &'*'
+            && [')', '('].contains(&ascii_chars[i + 1])
+            && ascii_chars[i + 2].is_alphabetic()
+        {
+            let diacritic = ascii_chars[i + 1];
+            ascii_chars[i + 1] = ascii_chars[i + 2].to_ascii_uppercase();
+            ascii_chars[i + 2] = diacritic;
         }
     }
 
@@ -203,7 +210,9 @@ pub fn convert<T: Into<String>>(input: T) -> String {
     }
     // Checks for unordered diacritics
     if RE_UNORDERED_DIACRITICS.is_match(&output) {
+        dbg!(&output);
         output = reorder_diacritics(output);
+        dbg!(&output);
     }
 
     // Main conversion algorithm

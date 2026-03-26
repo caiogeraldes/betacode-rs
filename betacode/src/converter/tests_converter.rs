@@ -34,6 +34,9 @@ fn test_convert() {
     let string = String::from("a)");
     let result = convert(string);
     assert_eq!(result, compose_unicode("ἀ").to_string());
+    let string = String::from("*)age/lh");
+    let result = convert(string);
+    assert_eq!(result, compose_unicode("Ἀγέλη").to_string());
     let string = String::from("a)/");
     let result = convert(string);
     assert_eq!(result, compose_unicode("ἄ").to_string());
