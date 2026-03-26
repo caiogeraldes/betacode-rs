@@ -97,6 +97,16 @@ pub fn find_upper<T: Into<String>>(input: T) -> String {
             let diacritic = ascii_chars[i + 1];
             ascii_chars[i + 1] = ascii_chars[i + 2].to_ascii_uppercase();
             ascii_chars[i + 2] = diacritic;
+        } else if character == &'*'
+            && [')', '('].contains(&ascii_chars[i + 1])
+            && ['=', '/'].contains(&ascii_chars[i + 2])
+            && ascii_chars[i + 3].is_alphabetic()
+        {
+            let spirit = ascii_chars[i + 1];
+            let accent = ascii_chars[i + 2];
+            ascii_chars[i + 1] = ascii_chars[i + 3].to_ascii_uppercase();
+            ascii_chars[i + 2] = spirit;
+            ascii_chars[i + 3] = accent;
         }
     }
 
@@ -210,9 +220,7 @@ pub fn convert<T: Into<String>>(input: T) -> String {
     }
     // Checks for unordered diacritics
     if RE_UNORDERED_DIACRITICS.is_match(&output) {
-        dbg!(&output);
         output = reorder_diacritics(output);
-        dbg!(&output);
     }
 
     // Main conversion algorithm
