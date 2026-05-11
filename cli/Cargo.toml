@@ -11,7 +11,7 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-betacode = { path = "../betacode", version = ">=1.2.0" }
+betacode = { path = "../betacode", version = ">=1.2.3" }
 clap = { version = "3.2.17", features = ["derive"] }
 log = "0.4.19"
 pretty_env_logger = "0.5.0"
